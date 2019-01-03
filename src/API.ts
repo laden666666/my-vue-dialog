@@ -1,19 +1,18 @@
+import { VNode, VNodeComponentOptions } from 'vue'
+
 /**
- * 对话框内容配置
- * @interface VueOption
+ * render函数、template字符串模板、component配置
  */
-
-export type VueOption = VueConstructor | string | {():VNode},
+export type VueOption = VNodeComponentOptions | string | {(): VNode}
 
 
 /**
+ * 创建对话框的配置
  * @interface DialogOption
  */
 export interface DialogOption {
-    // 由于js经常会有隐式转换的问题,为了方便用户操作一些参数可以传入string类型
-
     // 标题
-    title: string,
+    title?: string,
 
     // 延迟多少秒后打开
     delay?: number | string,
@@ -34,40 +33,40 @@ export interface DialogOption {
     scrollable?: boolean,
 
     //是否显示右上角关闭按钮
-    showClose?:boolean,
+    showClose?: boolean,
 
     // 是否显示遮罩层
-    showMask?:boolean,
+    showMask?: boolean,
 
     // 是否可通过点击遮罩关闭 dialog
-    maskClosable?:boolean,
+    maskClosable?: boolean,
 
     // 设置层级
-    zIndex?:number | string,
+    zIndex?: number | string,
 
     //确定按钮的文字
-    okText?:string,
+    okText?: string,
 
     //点击确定的回调
     onOk?: {(): void},
 
     // 取消按钮的文字
-    cancelText?:string,
+    cancelText?: string,
 
     // 点击取消的回调
     onCancel?: {(): void},
 
     // 打开对话框的校验如果该函数为false对话框不会打开
-    onbeforeShow?: {(option: DialogOption):boolean|undefined},
+    onbeforeShow?: {(option: DialogOption): boolean | undefined},
 
     // 打开对话框后的事件
     onShow?: {():void},
 
     // 对话框关闭前的事件，参数关闭时候返回的对象，如果该函数返回false对话框将不会关闭
-    onBeforeClose?:{($event:any):boolean|undefined|Promise<boolean|undefined>}
+    onBeforeClose?:{($event: any): boolean | undefined | Promise<boolean | undefined>}
 
     //对话框关闭后的事件
-    onClose?: {():void},
+    onClose?: {(): void},
 
     
 }
