@@ -1,113 +1,105 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
-  </div>
+    <div class="hello">
+        <button @click="openTemplate">测试字符串</button>
+        <button @click="openRander">测试render函数</button>
+        <button @click="openComponent">测试component</button>
+        <button @click="openService">使用esm打开</button>
+        <button @click="openStore">测试使用store打开</button>
+    </div>
 </template>
 
 <script>
+import Test from './Test'
+import MyDialog from 'my-vue-dialog'
+
 export default {
-  name: 'HelloWorld',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
+    data () {
+        return {
+            msg: 'Welcome to Your Vue.js App'
+        }
+    },
+    methods: {
+        openTemplate(){
+            this.$MyDialog.open({
+                title: 'test',
+                content: `<a>{{msg}}<button @click="$myDialog.close()">关闭</button></a>`,
+                propsData: {
+                    msg: 'msg'
+                },
+                onShow(){
+                    console.log('onShow')
+                },
+                onClose(){
+                    console.log('onClose')
+                },
+            })
+        },
+        openRander(){
+            let dialog = this.$MyDialog.open({
+                title: 'test',
+                content: function(h){
+                    return h('button',{
+                        on:{
+                            "click": function($event){
+                                dialog.close()
+                            }
+                        }
+                    },['关闭'])
+                },
+                onShow(){
+                    console.log('onShow')
+                },
+                onClose(){
+                    console.log('onClose')
+                },
+            })
+        },
+        openComponent(){
+            this.$MyDialog.open({
+                title: 'test',
+                content: Test,
+                propsData: {
+                    msg: 'msg'
+                },
+                onShow(){
+                    console.log('onShow')
+                },
+                onClose(){
+                    console.log('onClose')
+                },
+            })
+        },
+        openService(){
+            MyDialog.getInstance().open({
+                title: 'test',
+                content: Test,
+                propsData: {
+                    msg: 'msg'
+                },
+                onShow(){
+                    console.log('onShow')
+                },
+                onClose(){
+                    console.log('onClose')
+                },
+            })
+        },
+        openStore(){
+            MyDialog.getInstance().open({
+                title: 'test',
+                content: `<a>{{$store.state.test}}<button @click="$myDialog.close()">关闭</button></a>`,
+                onShow(){
+                    console.log('onShow')
+                },
+                onClose(){
+                    console.log('onClose')
+                },
+            })
+        },
     }
-  }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
 </style>

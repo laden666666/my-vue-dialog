@@ -4,6 +4,7 @@
  */
 import {DialogOption, DialogComponent} from './API';
 import { IDialog } from '../dist/src/API';
+import Vue, {ComponentOptions, VueConstructor} from 'vue';
 
 let cid = 0;
 
@@ -12,7 +13,13 @@ export class Dialog implements IDialog {
 
     id: number = cid++
 
-    constructor(public $option: DialogOption){
+    constructor(public $option: DialogOption, private data: Vue){
+        this.setContent($option.content)
+
+        // 打开的动画效果
+        setTimeout(()=>{
+            this.$show = true
+        }, 50)
     }
 
     // 设置对话框标题
@@ -65,17 +72,59 @@ export class Dialog implements IDialog {
 
     // Dialog 内容
     setContent(dialogComponent: DialogComponent){
+        // 根据content的不同类型，创建不同类型的对象。对于component以外的控件形式（render和string）
+        // 通过propsData动态计算出props
+        let componentOptions: ComponentOptions<any>
+        if(typeof dialogComponent === 'string'){
+            componentOptions = {
+                props: Object.keys(this.$option.propsData),
+                template: dialogComponent,
+            }
+        } 
+        if(typeof dialogComponent === 'function') {
+            componentOptions = {
+                props: Object.keys(this.$option.propsData),
+                render: dialogComponent,
+            }
+        } 
+        if(typeof dialogComponent === 'object') {
+            componentOptions = dialogComponent
+        }
+
+        let that = this
+        this.$content = Vue.extend(componentOptions).extend({
+            mounted(){
+                that.$option.onShow.call(that)
+            },
+            computed: {
+                $myDialog: ()=> {
+                    return that
+                }
+            },
+        })
     }
 
+    // 正在的vue的控件对象
+    $content: VueConstructor
+
     // 显示对话框
-    $show: boolean = true
+    $show: boolean = false
 
     // 关闭
     async close(returnData: any): Promise<boolean>{
-        let result = await this.$option.onBeforeClose(returnData)
-        if(result === false){
+        let result = await this.$option.onBeforeClose.call(this, returnData)
+        if(result !== false){
+            // 关闭动画
             this.$show = false
-        }
-        return true
+            setTimeout(()=>{
+                this.$option.onClose.call(this)
+                let data: { list: Dialog[]} = this.data as any
+                data.list.splice(data.list.findIndex(dialog=> dialog.id === this.id), 1) 
+            }, 200)
+            
+            return true
+        } 
+        
+        return false
     }
 }

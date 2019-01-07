@@ -7,6 +7,8 @@ import { DialogManagerOption } from '../dist/src/API';
 // 保存DialogManager对应的数据的对象
 export type DialogManagerData = {
     dialogManager : DialogManager,
+
+    // 对户框dialogManager的数据，该数据会保存到vue的对象里面
     data:{
         list: Dialog[]
     }
@@ -28,11 +30,6 @@ let lastKey: string
 export function careateManager(option: string | DialogManagerOption, vue: Vue): DialogManagerData{
 
     let dialogManager = new DialogManager(option, vue)
-
-    // 这个key的对话框已经存在
-    if(dialogManagerMap[dialogManager.key]){
-        throw new Error(``)
-    }
 
     dialogManagerMap[dialogManager.key] = {
         dialogManager,

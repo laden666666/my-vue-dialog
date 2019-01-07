@@ -3,13 +3,21 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
+import MyDialog from 'my-vue-dialog'
+import 'my-vue-dialog/dist/my-vue-dialog.css'
 
 Vue.config.productionTip = false
 
+Vue.use(MyDialog)
+
 /* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
+window.vue = new Vue({
+    el: '#app',
+    router,
+    store,
+    // 必须要设置myDialog才能在原型上面使用MyDialog
+    myDialog: {key: 'example'},
+    components: { App },
+    template: '<App/>'
 })

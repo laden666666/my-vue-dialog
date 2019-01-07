@@ -7,12 +7,14 @@ import Vue from 'vue';
 declare class DialogManager implements IDialogManager {
     private _vue;
     constructor(option: string | DialogManagerOption, _vue: Vue);
-    private readonly _defaultOption;
+    private _defaultOption;
     readonly defaultOption: DialogOption;
     private _key;
     readonly key: string;
     open(option?: DialogOption): IDialog;
     readonly topDialog: IDialog;
     destroy(): void;
+    _subVue: Vue;
+    _init(): void;
 }
 export default DialogManager;

@@ -84,25 +84,46 @@ var _typeof2 = __webpack_require__(108);
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
+var _weakMap = __webpack_require__(38);
+
+var _weakMap2 = _interopRequireDefault(_weakMap);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var DataBase_1 = __webpack_require__(78);
+var map = new _weakMap2.default();
+/**
+ * 对外暴露的插件
+ */
 var dialogPlugin = {
     install: function install(vue, options) {
         vue.mixin({
             beforeCreate: function beforeCreate() {
                 if (this === this.$root && this.$root.$options.myDialog != null) {
-                    DataBase_1.careateManager((0, _typeof3.default)(this.$root.$options.myDialog), this.$root);
+                    map.set(this.$root, DataBase_1.careateManager((0, _typeof3.default)(this.$root.$options.myDialog), this.$root));
                 }
             },
             destroyed: function destroyed() {
                 if (this === this.$root && this.$root.$options.myDialog != null) {
                     DataBase_1.destroyManager(this.$root.$options.myDialog);
                 }
+            },
+
+            computed: {
+                $MyDialog: function $MyDialog() {
+                    var data = map.get(this.$root);
+                    return data ? data.dialogManager : null;
+                }
             }
         });
     },
+
+    /**
+     * 获取DialogManager实例，如果是key未传，返回最新创建的DialogManager对象
+     * @param {string} [key]
+     * @returns {IDialogManager}
+     */
     getInstance: function getInstance(key) {
         var managerData = void 0;
         if (key !== null) {
@@ -113,6 +134,7 @@ var dialogPlugin = {
         return managerData ? managerData.dialogManager : null;
     }
 };
+exports.default = dialogPlugin;
 
 /***/ }),
 /* 1 */
@@ -435,7 +457,56 @@ module.exports = function (it) {
 
 
 /***/ }),
-/* 22 */,
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 0 -> Array#forEach
+// 1 -> Array#map
+// 2 -> Array#filter
+// 3 -> Array#some
+// 4 -> Array#every
+// 5 -> Array#find
+// 6 -> Array#findIndex
+var ctx = __webpack_require__(13);
+var IObject = __webpack_require__(15);
+var toObject = __webpack_require__(21);
+var toLength = __webpack_require__(17);
+var asc = __webpack_require__(57);
+module.exports = function (TYPE, $create) {
+  var IS_MAP = TYPE == 1;
+  var IS_FILTER = TYPE == 2;
+  var IS_SOME = TYPE == 3;
+  var IS_EVERY = TYPE == 4;
+  var IS_FIND_INDEX = TYPE == 6;
+  var NO_HOLES = TYPE == 5 || IS_FIND_INDEX;
+  var create = $create || asc;
+  return function ($this, callbackfn, that) {
+    var O = toObject($this);
+    var self = IObject(O);
+    var f = ctx(callbackfn, that, 3);
+    var length = toLength(self.length);
+    var index = 0;
+    var result = IS_MAP ? create($this, length) : IS_FILTER ? create($this, 0) : undefined;
+    var val, res;
+    for (;length > index; index++) if (NO_HOLES || index in self) {
+      val = self[index];
+      res = f(val, index, O);
+      if (TYPE) {
+        if (IS_MAP) result[index] = res;   // map
+        else if (res) switch (TYPE) {
+          case 3: return true;             // some
+          case 5: return val;              // find
+          case 6: return index;            // findIndex
+          case 2: result.push(val);        // filter
+        } else if (IS_EVERY) return false; // every
+      }
+    }
+    return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : result;
+  };
+};
+
+
+/***/ }),
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -665,9 +736,35 @@ module.exports = function (it, Constructor, name, forbiddenField) {
 
 
 /***/ }),
-/* 37 */,
-/* 38 */,
-/* 39 */,
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isObject = __webpack_require__(1);
+module.exports = function (it, TYPE) {
+  if (!isObject(it) || it._t !== TYPE) throw TypeError('Incompatible receiver, ' + TYPE + ' required!');
+  return it;
+};
+
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(39), __esModule: true };
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(40);
+__webpack_require__(41);
+__webpack_require__(56);
+__webpack_require__(69);
+__webpack_require__(71);
+module.exports = __webpack_require__(12).WeakMap;
+
+
+/***/ }),
 /* 40 */
 /***/ (function(module, exports) {
 
@@ -1037,9 +1134,106 @@ module.exports = Object.getPrototypeOf || function (O) {
 
 
 /***/ }),
-/* 56 */,
-/* 57 */,
-/* 58 */,
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var each = __webpack_require__(22)(0);
+var redefine = __webpack_require__(30);
+var meta = __webpack_require__(23);
+var assign = __webpack_require__(60);
+var weak = __webpack_require__(63);
+var isObject = __webpack_require__(1);
+var fails = __webpack_require__(6);
+var validate = __webpack_require__(37);
+var WEAK_MAP = 'WeakMap';
+var getWeak = meta.getWeak;
+var isExtensible = Object.isExtensible;
+var uncaughtFrozenStore = weak.ufstore;
+var tmp = {};
+var InternalMap;
+
+var wrapper = function (get) {
+  return function WeakMap() {
+    return get(this, arguments.length > 0 ? arguments[0] : undefined);
+  };
+};
+
+var methods = {
+  // 23.3.3.3 WeakMap.prototype.get(key)
+  get: function get(key) {
+    if (isObject(key)) {
+      var data = getWeak(key);
+      if (data === true) return uncaughtFrozenStore(validate(this, WEAK_MAP)).get(key);
+      return data ? data[this._i] : undefined;
+    }
+  },
+  // 23.3.3.5 WeakMap.prototype.set(key, value)
+  set: function set(key, value) {
+    return weak.def(validate(this, WEAK_MAP), key, value);
+  }
+};
+
+// 23.3 WeakMap Objects
+var $WeakMap = module.exports = __webpack_require__(68)(WEAK_MAP, wrapper, methods, weak, true, true);
+
+// IE11 WeakMap frozen keys fix
+if (fails(function () { return new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7; })) {
+  InternalMap = weak.getConstructor(wrapper, WEAK_MAP);
+  assign(InternalMap.prototype, methods);
+  meta.NEED = true;
+  each(['delete', 'has', 'get', 'set'], function (key) {
+    var proto = $WeakMap.prototype;
+    var method = proto[key];
+    redefine(proto, key, function (a, b) {
+      // store frozen objects on internal weakmap shim
+      if (isObject(a) && !isExtensible(a)) {
+        if (!this._f) this._f = new InternalMap();
+        var result = this._f[key](a, b);
+        return key == 'set' ? this : result;
+      // store all the rest on native weakmap
+      } return method.call(this, a, b);
+    });
+  });
+}
+
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 9.4.2.3 ArraySpeciesCreate(originalArray, length)
+var speciesConstructor = __webpack_require__(58);
+
+module.exports = function (original, length) {
+  return new (speciesConstructor(original))(length);
+};
+
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isObject = __webpack_require__(1);
+var isArray = __webpack_require__(59);
+var SPECIES = __webpack_require__(2)('species');
+
+module.exports = function (original) {
+  var C;
+  if (isArray(original)) {
+    C = original.constructor;
+    // cross-realm fallback
+    if (typeof C == 'function' && (C === Array || isArray(C.prototype))) C = undefined;
+    if (isObject(C)) {
+      C = C[SPECIES];
+      if (C === null) C = undefined;
+    }
+  } return C === undefined ? Array : C;
+};
+
+
+/***/ }),
 /* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1106,7 +1300,98 @@ exports.f = {}.propertyIsEnumerable;
 
 
 /***/ }),
-/* 63 */,
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var redefineAll = __webpack_require__(35);
+var getWeak = __webpack_require__(23).getWeak;
+var anObject = __webpack_require__(5);
+var isObject = __webpack_require__(1);
+var anInstance = __webpack_require__(36);
+var forOf = __webpack_require__(24);
+var createArrayMethod = __webpack_require__(22);
+var $has = __webpack_require__(7);
+var validate = __webpack_require__(37);
+var arrayFind = createArrayMethod(5);
+var arrayFindIndex = createArrayMethod(6);
+var id = 0;
+
+// fallback for uncaught frozen keys
+var uncaughtFrozenStore = function (that) {
+  return that._l || (that._l = new UncaughtFrozenStore());
+};
+var UncaughtFrozenStore = function () {
+  this.a = [];
+};
+var findUncaughtFrozen = function (store, key) {
+  return arrayFind(store.a, function (it) {
+    return it[0] === key;
+  });
+};
+UncaughtFrozenStore.prototype = {
+  get: function (key) {
+    var entry = findUncaughtFrozen(this, key);
+    if (entry) return entry[1];
+  },
+  has: function (key) {
+    return !!findUncaughtFrozen(this, key);
+  },
+  set: function (key, value) {
+    var entry = findUncaughtFrozen(this, key);
+    if (entry) entry[1] = value;
+    else this.a.push([key, value]);
+  },
+  'delete': function (key) {
+    var index = arrayFindIndex(this.a, function (it) {
+      return it[0] === key;
+    });
+    if (~index) this.a.splice(index, 1);
+    return !!~index;
+  }
+};
+
+module.exports = {
+  getConstructor: function (wrapper, NAME, IS_MAP, ADDER) {
+    var C = wrapper(function (that, iterable) {
+      anInstance(that, C, NAME, '_i');
+      that._t = NAME;      // collection type
+      that._i = id++;      // collection id
+      that._l = undefined; // leak store for uncaught frozen objects
+      if (iterable != undefined) forOf(iterable, IS_MAP, that[ADDER], that);
+    });
+    redefineAll(C.prototype, {
+      // 23.3.3.2 WeakMap.prototype.delete(key)
+      // 23.4.3.3 WeakSet.prototype.delete(value)
+      'delete': function (key) {
+        if (!isObject(key)) return false;
+        var data = getWeak(key);
+        if (data === true) return uncaughtFrozenStore(validate(this, NAME))['delete'](key);
+        return data && $has(data, this._i) && delete data[this._i];
+      },
+      // 23.3.3.4 WeakMap.prototype.has(key)
+      // 23.4.3.4 WeakSet.prototype.has(value)
+      has: function has(key) {
+        if (!isObject(key)) return false;
+        var data = getWeak(key);
+        if (data === true) return uncaughtFrozenStore(validate(this, NAME)).has(key);
+        return data && $has(data, this._i);
+      }
+    });
+    return C;
+  },
+  def: function (that, key, value) {
+    var data = getWeak(anObject(key), true);
+    if (data === true) uncaughtFrozenStore(that).set(key, value);
+    else data[that._i] = value;
+    return that;
+  },
+  ufstore: uncaughtFrozenStore
+};
+
+
+/***/ }),
 /* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1182,11 +1467,142 @@ module.exports = function (it) {
 
 
 /***/ }),
-/* 68 */,
-/* 69 */,
-/* 70 */,
-/* 71 */,
-/* 72 */,
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var global = __webpack_require__(3);
+var $export = __webpack_require__(11);
+var meta = __webpack_require__(23);
+var fails = __webpack_require__(6);
+var hide = __webpack_require__(4);
+var redefineAll = __webpack_require__(35);
+var forOf = __webpack_require__(24);
+var anInstance = __webpack_require__(36);
+var isObject = __webpack_require__(1);
+var setToStringTag = __webpack_require__(20);
+var dP = __webpack_require__(9).f;
+var each = __webpack_require__(22)(0);
+var DESCRIPTORS = __webpack_require__(10);
+
+module.exports = function (NAME, wrapper, methods, common, IS_MAP, IS_WEAK) {
+  var Base = global[NAME];
+  var C = Base;
+  var ADDER = IS_MAP ? 'set' : 'add';
+  var proto = C && C.prototype;
+  var O = {};
+  if (!DESCRIPTORS || typeof C != 'function' || !(IS_WEAK || proto.forEach && !fails(function () {
+    new C().entries().next();
+  }))) {
+    // create collection constructor
+    C = common.getConstructor(wrapper, NAME, IS_MAP, ADDER);
+    redefineAll(C.prototype, methods);
+    meta.NEED = true;
+  } else {
+    C = wrapper(function (target, iterable) {
+      anInstance(target, C, NAME, '_c');
+      target._c = new Base();
+      if (iterable != undefined) forOf(iterable, IS_MAP, target[ADDER], target);
+    });
+    each('add,clear,delete,forEach,get,has,set,keys,values,entries,toJSON'.split(','), function (KEY) {
+      var IS_ADDER = KEY == 'add' || KEY == 'set';
+      if (KEY in proto && !(IS_WEAK && KEY == 'clear')) hide(C.prototype, KEY, function (a, b) {
+        anInstance(this, C, KEY);
+        if (!IS_ADDER && IS_WEAK && !isObject(a)) return KEY == 'get' ? undefined : false;
+        var result = this._c[KEY](a === 0 ? 0 : a, b);
+        return IS_ADDER ? this : result;
+      });
+    });
+    IS_WEAK || dP(C.prototype, 'size', {
+      get: function () {
+        return this._c.size;
+      }
+    });
+  }
+
+  setToStringTag(C, NAME);
+
+  O[NAME] = C;
+  $export($export.G + $export.W + $export.F, O);
+
+  if (!IS_WEAK) common.setStrong(C, NAME, IS_MAP);
+
+  return C;
+};
+
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// https://tc39.github.io/proposal-setmap-offrom/#sec-weakmap.of
+__webpack_require__(70)('WeakMap');
+
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// https://tc39.github.io/proposal-setmap-offrom/
+var $export = __webpack_require__(11);
+
+module.exports = function (COLLECTION) {
+  $export($export.S, COLLECTION, { of: function of() {
+    var length = arguments.length;
+    var A = new Array(length);
+    while (length--) A[length] = arguments[length];
+    return new this(A);
+  } });
+};
+
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// https://tc39.github.io/proposal-setmap-offrom/#sec-weakmap.from
+__webpack_require__(72)('WeakMap');
+
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// https://tc39.github.io/proposal-setmap-offrom/
+var $export = __webpack_require__(11);
+var aFunction = __webpack_require__(27);
+var ctx = __webpack_require__(13);
+var forOf = __webpack_require__(24);
+
+module.exports = function (COLLECTION) {
+  $export($export.S, COLLECTION, { from: function from(source /* , mapFn, thisArg */) {
+    var mapFn = arguments[1];
+    var mapping, A, n, cb;
+    aFunction(this);
+    mapping = mapFn !== undefined;
+    if (mapping) aFunction(mapFn);
+    if (source == undefined) return new this();
+    A = [];
+    if (mapping) {
+      n = 0;
+      cb = ctx(mapFn, arguments[2], 2);
+      forOf(source, false, function (nextItem) {
+        A.push(cb(nextItem, n++));
+      });
+    } else {
+      forOf(source, false, A.push, A);
+    }
+    return new this(A);
+  } });
+};
+
+
+/***/ }),
 /* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1456,6 +1872,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 Object.defineProperty(exports, "__esModule", { value: true });
 var DataBase_1 = __webpack_require__(78);
 var Dialog_1 = __webpack_require__(119);
+var vue_1 = __webpack_require__(79);
+var MyDialogList = vue_1.default.extend(__webpack_require__(123).default);
 //默认配置
 var defaultOption = {
     title: '',
@@ -1499,8 +1917,6 @@ var DialogManager = function () {
             this._defaultOption = (0, _assign2.default)({}, defaultOption);
         }
     }
-    // 默认配置
-
 
     (0, _createClass3.default)(DialogManager, [{
         key: "open",
@@ -1513,7 +1929,8 @@ var DialogManager = function () {
                 throw new Error('The component of Dialog option is required');
             }
             option = (0, _assign2.default)({}, this.defaultOption, option);
-            var dialog = new Dialog_1.Dialog(option);
+            var dialog = new Dialog_1.Dialog(option, DataBase_1.getManager(this._key).data);
+            this._init();
             _promise2.default.resolve().then(function () {
                 return dialog.$option.onBeforeShow();
             }).then(function (result) {
@@ -1529,8 +1946,31 @@ var DialogManager = function () {
 
     }, {
         key: "destroy",
+
+        // 销毁
         value: function destroy() {
             this._vue = null;
+            if (this._subVue) {
+                this._subVue.$el.removeChild(this._subVue.$el);
+                this._subVue.$destroy();
+                this._subVue = null;
+            }
+        }
+    }, {
+        key: "_init",
+        value: function _init() {
+            // 用户在第一次打开时候初始化
+            if (!this._subVue) {
+                this._subVue = new MyDialogList({
+                    propsData: {
+                        vue: DataBase_1.getManager(this._key).data
+                    },
+                    parent: this._vue
+                });
+                var div = document.createElement('div');
+                document.body.appendChild(div);
+                this._subVue.$mount(div);
+            }
         }
     }, {
         key: "defaultOption",
@@ -3470,6 +3910,14 @@ var _asyncToGenerator2 = __webpack_require__(84);
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
+var _typeof2 = __webpack_require__(108);
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+var _keys = __webpack_require__(134);
+
+var _keys2 = _interopRequireDefault(_keys);
+
 var _assign = __webpack_require__(97);
 
 var _assign2 = _interopRequireDefault(_assign);
@@ -3485,16 +3933,25 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var vue_1 = __webpack_require__(79);
 var cid = 0;
 
 var Dialog = function () {
-    function Dialog($option) {
+    function Dialog($option, data) {
+        var _this = this;
+
         (0, _classCallCheck3.default)(this, Dialog);
 
         this.$option = $option;
+        this.data = data;
         this.id = cid++;
         // 显示对话框
-        this.$show = true;
+        this.$show = false;
+        this.setContent($option.content);
+        // 打开的动画效果
+        setTimeout(function () {
+            _this.$show = true;
+        }, 50);
     }
     // 设置对话框标题
 
@@ -3564,13 +4021,49 @@ var Dialog = function () {
 
     }, {
         key: "setContent",
-        value: function setContent(dialogComponent) {}
+        value: function setContent(dialogComponent) {
+            // 根据content的不同类型，创建不同类型的对象。对于component以外的控件形式（render和string）
+            // 通过propsData动态计算出props
+            var componentOptions = void 0;
+            if (typeof dialogComponent === 'string') {
+                componentOptions = {
+                    props: (0, _keys2.default)(this.$option.propsData),
+                    template: dialogComponent
+                };
+            }
+            if (typeof dialogComponent === 'function') {
+                componentOptions = {
+                    props: (0, _keys2.default)(this.$option.propsData),
+                    render: dialogComponent
+                };
+            }
+            if ((typeof dialogComponent === "undefined" ? "undefined" : (0, _typeof3.default)(dialogComponent)) === 'object') {
+                componentOptions = dialogComponent;
+            }
+            var that = this;
+            this.$content = vue_1.default.extend(componentOptions).extend({
+                mounted: function mounted() {
+                    that.$option.onShow();
+                },
+                destroyed: function destroyed() {
+                    that.$option.onClose();
+                },
+
+                computed: {
+                    $myDialog: function $myDialog() {
+                        return that;
+                    }
+                }
+            });
+        }
         // 关闭
 
     }, {
         key: "close",
         value: function () {
             var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(returnData) {
+                var _this2 = this;
+
                 var result;
                 return _regenerator2.default.wrap(function _callee$(_context) {
                     while (1) {
@@ -3582,12 +4075,25 @@ var Dialog = function () {
                             case 2:
                                 result = _context.sent;
 
-                                if (result === false) {
-                                    this.$show = false;
+                                if (!(result !== false)) {
+                                    _context.next = 7;
+                                    break;
                                 }
+
+                                // 关闭动画
+                                this.$show = false;
+                                setTimeout(function () {
+                                    var data = _this2.data;
+                                    data.list = data.list.filter(function (dialog) {
+                                        return dialog.id !== _this2.id;
+                                    });
+                                }, 200);
                                 return _context.abrupt("return", true);
 
-                            case 5:
+                            case 7:
+                                return _context.abrupt("return", false);
+
+                            case 8:
                             case "end":
                                 return _context.stop();
                         }
@@ -3606,6 +4112,475 @@ var Dialog = function () {
 }();
 
 exports.Dialog = Dialog;
+
+/***/ }),
+/* 120 */
+/***/ (function(module, exports) {
+
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file.
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 121 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _MyDialog = __webpack_require__(125);
+
+var _MyDialog2 = _interopRequireDefault(_MyDialog);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+    props: {
+        vue: {}
+    },
+    components: {
+        MyDialog: _MyDialog2.default
+    }
+}; //
+//
+//
+//
+//
+//
+
+/***/ }),
+/* 122 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+exports.default = {
+    props: {
+        // 打开的对话框数量
+        dialog: {
+            type: Object,
+            required: true
+        },
+        // vue的对象
+        vue: {}
+    },
+    name: 'MyDialog'
+};
+
+/***/ }),
+/* 123 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialogList_vue__ = __webpack_require__(121);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialogList_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialogList_vue__);
+/* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialogList_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialogList_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_6510e934_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_MyDialogList_vue__ = __webpack_require__(139);
+var disposed = false
+var normalizeComponent = __webpack_require__(120)
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialogList_vue___default.a,
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_6510e934_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_MyDialogList_vue__["a" /* default */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "src/vue/MyDialogList.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-6510e934", Component.options)
+  } else {
+    hotAPI.reload("data-v-6510e934", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["default"] = (Component.exports);
+
+
+/***/ }),
+/* 124 */,
+/* 125 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialog_vue__ = __webpack_require__(122);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialog_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialog_vue__);
+/* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialog_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialog_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_5c2f1b14_hasScoped_true_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_stripWithFunctional_true_node_modules_vue_loader_lib_selector_type_template_index_0_MyDialog_vue__ = __webpack_require__(138);
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(126)
+}
+var normalizeComponent = __webpack_require__(120)
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = true
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-5c2f1b14"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_MyDialog_vue___default.a,
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_5c2f1b14_hasScoped_true_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_stripWithFunctional_true_node_modules_vue_loader_lib_selector_type_template_index_0_MyDialog_vue__["a" /* default */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "src/vue/MyDialog.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-5c2f1b14", Component.options)
+  } else {
+    hotAPI.rerender("data-v-5c2f1b14", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["default"] = (Component.exports);
+
+
+/***/ }),
+/* 126 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 127 */,
+/* 128 */,
+/* 129 */,
+/* 130 */,
+/* 131 */,
+/* 132 */,
+/* 133 */,
+/* 134 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = { "default": __webpack_require__(135), __esModule: true };
+
+/***/ }),
+/* 135 */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(136);
+module.exports = __webpack_require__(12).Object.keys;
+
+
+/***/ }),
+/* 136 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// 19.1.2.14 Object.keys(O)
+var toObject = __webpack_require__(21);
+var $keys = __webpack_require__(31);
+
+__webpack_require__(137)('keys', function () {
+  return function keys(it) {
+    return $keys(toObject(it));
+  };
+});
+
+
+/***/ }),
+/* 137 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// most Object methods by ES6 should accept primitives
+var $export = __webpack_require__(11);
+var core = __webpack_require__(12);
+var fails = __webpack_require__(6);
+module.exports = function (KEY, exec) {
+  var fn = (core.Object || {})[KEY] || Object[KEY];
+  var exp = {};
+  exp[KEY] = exec(fn);
+  $export($export.S + $export.F * fails(function () { fn(1); }), 'Object', exp);
+};
+
+
+/***/ }),
+/* 138 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var render = function(_h, _vm) {
+  var _c = _vm._c
+  return _c(
+    "div",
+    { staticClass: "my-dialog" },
+    [
+      _vm.props.dialog.$option.showMask
+        ? _c("div", {
+            staticClass: "my-dialog-mask",
+            on: {
+              click: function($event) {
+                _vm.props.dialog.$option.maskClosable &&
+                  _vm.props.dialog.close()
+              }
+            }
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _c("transition", { attrs: { name: "my-dialog-box" } }, [
+        _vm.props.dialog.$show
+          ? _c(
+              "div",
+              {
+                staticClass: "my-dialog-box",
+                style: {
+                  height: _vm.props.dialog.$option.height + "px",
+                  width: _vm.props.dialog.$option.width + "px"
+                }
+              },
+              [
+                _c("header", { staticClass: "my-dialog-header" }, [
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(_vm.props.dialog.$option.title) +
+                      "\n                "
+                  ),
+                  _vm.props.dialog.$option.showClose
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "my-dialog-close",
+                          on: {
+                            click: function($event) {
+                              _vm.props.dialog.close()
+                            }
+                          }
+                        },
+                        [_vm._v("x")]
+                      )
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c(
+                  _vm.props.dialog.$content,
+                  _vm._b(
+                    { tag: "component" },
+                    "component",
+                    _vm.props.dialog.$option.propsData,
+                    false
+                  )
+                )
+              ],
+              1
+            )
+          : _vm._e()
+      ])
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+var esExports = { render: render, staticRenderFns: staticRenderFns }
+/* harmony default export */ __webpack_exports__["a"] = (esExports);
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-5c2f1b14", esExports)
+  }
+}
+
+/***/ }),
+/* 139 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    _vm._l(_vm.vue.list, function(dialog) {
+      return _c("MyDialog", {
+        key: dialog.id,
+        attrs: { dialog: dialog, vue: _vm.vue }
+      })
+    }),
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+var esExports = { render: render, staticRenderFns: staticRenderFns }
+/* harmony default export */ __webpack_exports__["a"] = (esExports);
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-6510e934", esExports)
+  }
+}
 
 /***/ })
 /******/ ]);

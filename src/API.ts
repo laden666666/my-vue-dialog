@@ -47,16 +47,16 @@ export interface DialogOption {
     zIndex?: number | string,
 
     // 打开对话框后的事件
-    onShow?: {():void},
+    onShow?: {(this: IDialog):void},
 
     // 打开对话框前的事件
-    onBeforeShow?: {(): boolean | void | Promise<boolean | void>},
+    onBeforeShow?: {(this: IDialog): boolean | void | Promise<boolean | void>},
 
     // 对话框关闭前的事件，参数关闭时候返回的对象，如果该函数返回false对话框将不会关闭
-    onBeforeClose?:{($event: any): boolean | void | Promise<boolean | void>}
+    onBeforeClose?:{(this: IDialog, $event: any): boolean | void | Promise<boolean | void>}
 
     //对话框关闭后的事件
-    onClose?: {(): void},
+    onClose?: {(this: IDialog): void},
 }
 
 

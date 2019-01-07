@@ -2,9 +2,15 @@ import { DialogOption, IDialogManager, IDialog } from './API';
 import { DialogManagerOption } from '../dist/src/API';
 import { getManager } from './DataBase';
 import { Dialog } from './Dialog';
-import Vue from 'vue';
+import Vue, {ComponentOptions} from 'vue';
 
-//默认配置
+declare function require<T>(name: string): T
+
+let MyDialogList = Vue.extend(require<{
+    default: ComponentOptions<any>
+}>('./vue/MyDialogList.vue').default)
+
+// 默认配置
 const defaultOption: DialogOption = {
     title: '',
     height: 300,
@@ -34,7 +40,7 @@ class DialogManager implements IDialogManager {
     constructor(option: string | DialogManagerOption, private _vue: Vue){
         if(typeof option === 'object') {
             // 如果用户未设置key，自动生成一个
-            this._key = typeof option.key === 'string' || typeof option.key === 'number' ?  
+            this._key = (typeof option.key === 'string' || typeof option.key === 'number') ?  
                 '' + option.key : '' + uid++ 
             this._defaultOption = {...defaultOption, ...option}
         } else {
@@ -46,9 +52,7 @@ class DialogManager implements IDialogManager {
     }
 
     // 默认配置
-    private readonly _defaultOption: DialogOption
-
-    // 默认配置
+    private _defaultOption: DialogOption
     get defaultOption(){
         return this._defaultOption
     }
@@ -66,11 +70,13 @@ class DialogManager implements IDialogManager {
         }
 
         option = { ...this.defaultOption, ...option }
-        let dialog: Dialog = new Dialog(option)
+        let dialog: Dialog = new Dialog(option, getManager(this._key).data as any)
+
+        this._init()
 
         Promise.resolve()
             .then(()=>{
-                return dialog.$option.onBeforeShow()
+                return dialog.$option.onBeforeShow.call(dialog)
             })
             .then(result=>{
                 if(result){
@@ -90,8 +96,32 @@ class DialogManager implements IDialogManager {
         return data ? data.data.list[data.data.list.length - 1] : null
     }
 
+    // 销毁
     destroy(){
         this._vue = null
+        if(this._subVue){
+            this._subVue.$el.removeChild(this._subVue.$el)
+            this._subVue.$destroy()
+            this._subVue = null
+        }
+    }
+
+    // 初始化
+    _subVue: Vue
+    _init(){
+        // 用户在第一次打开时候初始化
+        if(!this._subVue){
+            this._subVue = new MyDialogList({
+                propsData: {
+                    vue: getManager(this._key).data
+                },
+                parent: this._vue,
+            })
+    
+            let div = document.createElement('div')
+            document.body.appendChild(div)
+            this._subVue.$mount(div)
+        }
     }
 }
 
