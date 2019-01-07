@@ -198,14 +198,14 @@ describe('测试MyDialogAPI', function () {
         })
     });
 
-    it('关闭onBeforeShow', async function () {
+    it('关闭onBeforeCreate', async function () {
         let title = await new Promise((resolve, reject)=>{
             vueInstance.$MyDialog.open({
                 title: 'test',
                 content: {
                     template: '<span></span>',
                 },
-                onBeforeShow(){
+                onBeforeCreate(){
                     resolve(this.getTitle())
                 },
             })
@@ -214,7 +214,7 @@ describe('测试MyDialogAPI', function () {
         assert.equal(title, 'test')
     });
 
-    it('关闭onBeforeShow返回false', async function () {
+    it('关闭onBeforeCreate返回false', async function () {
         await new Promise((resolve, reject)=>{
             setTimeout(function(){
                 resolve()
@@ -224,10 +224,10 @@ describe('测试MyDialogAPI', function () {
                 content: {
                     template: '<span></span>',
                     mounted(){
-                        reject('beforeShow失效')
+                        reject('BeforeCreate失效')
                     },
                 },
-                onBeforeShow(){
+                onBeforeCreate(){
                     return false
                 },
             })

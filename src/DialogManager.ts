@@ -18,7 +18,7 @@ const defaultOption: DialogOption = {
     delay: 0,
     content: null,
     propsData: {},
-    onBeforeShow: ()=>true,
+    onBeforeCreate: ()=>true,
     onShow: ()=>{},
     onBeforeClose: ()=>true,
     onClose: ()=>{},
@@ -76,7 +76,7 @@ class DialogManager implements IDialogManager {
 
         Promise.resolve()
             .then(()=>{
-                return dialog.$option.onBeforeShow.call(dialog)
+                return dialog.$option.onBeforeCreate.call(dialog)
             })
             .then(result=>{
                 if(result){

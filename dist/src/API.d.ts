@@ -23,16 +23,16 @@ export interface DialogOption {
     maskClosable?: boolean;
     zIndex?: number | string;
     onShow?: {
-        (): void;
+        (this: IDialog): void;
     };
-    onBeforeShow?: {
-        (): boolean | void | Promise<boolean | void>;
+    onBeforeCreate?: {
+        (this: IDialog): boolean | void | Promise<boolean | void>;
     };
     onBeforeClose?: {
-        ($event: any): boolean | void | Promise<boolean | void>;
+        (this: IDialog, $event: any): boolean | void | Promise<boolean | void>;
     };
     onClose?: {
-        (): void;
+        (this: IDialog): void;
     };
 }
 /**
@@ -91,6 +91,10 @@ export interface IDialogPlugin {
      * @memberOf IDialogPlugin
      */
     getInstance(key: string): IDialogManager;
+    /**
+     * 版本
+     */
+    version: string;
 }
 declare module 'vue/types/vue' {
     interface Vue {

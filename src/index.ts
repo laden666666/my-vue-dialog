@@ -5,6 +5,9 @@ import { IDialogManager } from '../dist/src/API';
 
 const MY_DIALOG_MANAGER_KEY = '__myDialogKey'
 
+// 从webpack中获取的package.json版本
+declare const PLUGIN_VERSION: string
+
 /**
  * 对外暴露的插件
  */
@@ -50,7 +53,10 @@ let dialogPlugin: IDialogPlugin = {
         }
 
         return managerData ? managerData.dialogManager : null
-    }
+    },
+
+    // 版本
+    version: PLUGIN_VERSION
 }
 
 export default dialogPlugin

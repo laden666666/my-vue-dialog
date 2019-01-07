@@ -50,7 +50,7 @@ export interface DialogOption {
     onShow?: {(this: IDialog):void},
 
     // 打开对话框前的事件
-    onBeforeShow?: {(this: IDialog): boolean | void | Promise<boolean | void>},
+    onBeforeCreate?: {(this: IDialog): boolean | void | Promise<boolean | void>},
 
     // 对话框关闭前的事件，参数关闭时候返回的对象，如果该函数返回false对话框将不会关闭
     onBeforeClose?:{(this: IDialog, $event: any): boolean | void | Promise<boolean | void>}
@@ -155,6 +155,11 @@ export interface IDialogPlugin {
      * @memberOf IDialogPlugin
      */
     getInstance(key: string): IDialogManager
+
+    /**
+     * 版本
+     */
+    version: string
 }
 
 // 扩充vue的原型和options
