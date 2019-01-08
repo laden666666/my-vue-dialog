@@ -14,7 +14,7 @@
                 <!-- 对话框头部 -->
                 <header class="my-dialog-header">
                     {{props.dialog.$option.title}}
-                    <button class="my-dialog-close" v-if="props.dialog.$option.showClose" @click="props.dialog.close()">x</button>
+                    <i class="my-dialog-close" v-if="props.dialog.$option.showClose" @click="props.dialog.close()">X</i>
                 </header>
 
                 <!-- 使用动态组件渲染对话框内容 -->
@@ -53,7 +53,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: rgba(55,55,55,.6);
+        background-color: rgba(55,55,55,.65);
         height: 100%;
         z-index: 1000;
     }
@@ -72,15 +72,15 @@
         box-shadow: 0 4px 12px rgba(0,0,0,.15);
     }
     .my-dialog-box-enter-active {
-        animation: bounce-in .25s;
+        animation: bounce-in .3s;
     }
     .my-dialog-box-leave-active {
-        animation: bounce-in .25s reverse;
+        animation: bounce-in .3s reverse;
     }
     @keyframes bounce-in {
         0% {
             transform: translate(-50%, -50%) scale(.6);
-            opacity: 0.2;
+            opacity: 0;
         }
         100% {
             transform: translate(-50%, -50%) scale(1);
@@ -88,11 +88,11 @@
         }
     }
     .my-dialog-header {
-        border-bottom: 1px solid #e8eaec;
+        border-bottom: 1px solid #e8e8e8;
         padding: 14px 16px;
         line-height: 20px;
         font-size: 14px;
-        color: #17233d;
+        color: rgba(0,0,0,0.65);
         font-weight: 700;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -104,5 +104,6 @@
         right: 5px;
         top: 50%;
         transform: translateY(-50%);
+        cursor: pointer;
     }
 </style>
