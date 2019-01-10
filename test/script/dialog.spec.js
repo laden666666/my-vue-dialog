@@ -233,4 +233,26 @@ describe('测试MyDialogAPI', function () {
             })
         })
     });
+
+    it('测试topDialog', async function () {
+        await new Promise((resolve, reject)=>{
+            setTimeout(function(){
+                resolve()
+            }, 1000)
+
+            vueInstance.$MyDialog.open({
+                content: {
+                    template: '<span></span>',
+                },
+            })
+
+            let dialog = vueInstance.$MyDialog.open({
+                content: {
+                    template: '<span></span>',
+                },
+            })
+
+            assert.equal(dialog.id, vueInstance.$MyDialog.topDialog.id)
+        })
+    });
 });

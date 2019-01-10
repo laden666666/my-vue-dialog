@@ -6,9 +6,10 @@ import { IDialog } from '../dist/src/API';
 import Vue, { VueConstructor } from 'vue';
 export declare class Dialog implements IDialog {
     $option: DialogOption;
-    private data;
+    private _data;
     id: number;
-    constructor($option: DialogOption, data: Vue);
+    constructor($option: DialogOption, _data: Vue);
+    $open(): void;
     setTitle(title: string): void;
     getTitle(): string;
     resize({ height, width, }: {
@@ -24,4 +25,9 @@ export declare class Dialog implements IDialog {
     $content: VueConstructor;
     $show: boolean;
     close(returnData: any): Promise<boolean>;
+    /**
+     * 销毁对户框，将其从list里面移除
+     * @memberOf Dialog
+     */
+    $destroy(): void;
 }

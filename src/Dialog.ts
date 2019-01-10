@@ -8,14 +8,15 @@ import Vue, {ComponentOptions, VueConstructor} from 'vue';
 
 let cid = 0;
 
-
 export class Dialog implements IDialog {
 
     id: number = cid++
 
-    constructor(public $option: DialogOption, private data: Vue){
+    constructor(public $option: DialogOption, private _data: Vue){
         this.setContent($option.content)
+    }
 
+    $open(){
         // 打开的动画效果
         setTimeout(()=>{
             this.$show = true
@@ -118,13 +119,22 @@ export class Dialog implements IDialog {
             this.$show = false
             setTimeout(()=>{
                 this.$option.onClose.call(this)
-                let data: { list: Dialog[]} = this.data as any
-                data.list.splice(data.list.findIndex(dialog=> dialog.id === this.id), 1) 
+                this.$destroy()
             }, 200)
             
             return true
         } 
         
         return false
+    }
+
+    /**
+     * 销毁对户框，将其从list里面移除
+     * @memberOf Dialog
+     */
+    $destroy(){
+        let data: { list: Dialog[]} = this._data as any
+        data.list.splice(data.list.findIndex(dialog=> dialog.id === this.id), 1) 
+        this._data = null
     }
 }

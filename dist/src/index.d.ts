@@ -4,3 +4,4 @@ import { IDialogPlugin } from './API';
  */
 declare let dialogPlugin: IDialogPlugin;
 export default dialogPlugin;
+export * from './API';
