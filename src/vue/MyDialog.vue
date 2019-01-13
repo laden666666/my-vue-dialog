@@ -13,8 +13,11 @@
             >
                 <!-- 对话框头部 -->
                 <header class="my-dialog-header">
-                    {{props.dialog.$option.title}} 
-                    <i class="my-dialog-close" v-if="props.dialog.$option.showClose" @click="props.dialog.close()">X</i>
+                    {{props.dialog.$option.title}}
+                    <svg class="my-dialog-close" v-if="props.dialog.$option.showClose" @click="props.dialog.close()"
+                         viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2117">
+                        <path d="M512 466.944l233.472-233.472a31.744 31.744 0 0 1 45.056 45.056L557.056 512l233.472 233.472a31.744 31.744 0 0 1-45.056 45.056L512 557.056l-233.472 233.472a31.744 31.744 0 0 1-45.056-45.056L466.944 512 233.472 278.528a31.744 31.744 0 0 1 45.056-45.056z" p-id="2118"></path>
+                    </svg>
                 </header>
 
                 <!-- 使用动态组件渲染对话框内容 -->
@@ -105,5 +108,6 @@
         top: 50%;
         transform: translateY(-50%);
         cursor: pointer;
+        height: 20px;
     }
 </style>
