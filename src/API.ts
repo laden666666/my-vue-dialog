@@ -104,7 +104,6 @@ export interface IDialog {
     // 设置高度
     setHeight(height: number | string)
 
-
     // 初始化配置
     readonly getOption: ()=> DialogOption,
 

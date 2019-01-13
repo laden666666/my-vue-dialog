@@ -38,7 +38,7 @@ let uid = 0
 class DialogManager implements IDialogManager {
 
     constructor(option: string | DialogManagerOption, private _vue: Vue){
-        if(typeof option === 'object') {
+        if(option !== 'null' && typeof option === 'object') {
             // 如果用户未设置key，自动生成一个
             this._key = (typeof option.key === 'string' || typeof option.key === 'number') ?  
                 '' + option.key : '' + uid++ 
@@ -68,9 +68,13 @@ class DialogManager implements IDialogManager {
         if(!option.content){
             throw new Error('The component of Dialog option is required')
         }
+        
+        let data = getManager(this._key)
 
+        // 创建对话框，并把创建结果放到dialogManagerData里面
         option = { ...this.defaultOption, ...option }
         let dialog: Dialog = new Dialog(option, getManager(this._key).data as any)
+        data.data.list.push(dialog)
 
         this._init()
 
@@ -79,10 +83,11 @@ class DialogManager implements IDialogManager {
                 return dialog.$option.onBeforeCreate.call(dialog)
             })
             .then(result=>{
-                if(result){
-                    // 将dialog放入list里面
-                    let data = getManager(this._key)
-                    data.data.list.push(dialog)
+                // 如果onBeforeCreate里面校验未通过，不打开对话框。移除掉对话框对象
+                if(result !== false){
+                    dialog.$open()
+                } else {
+                    dialog.$destroy() 
                 }
             })
 
@@ -92,8 +97,8 @@ class DialogManager implements IDialogManager {
     // 最新打开的对话框
     get topDialog(): IDialog{
         let data = getManager(this.key)
-        
-        return data ? data.data.list[data.data.list.length - 1] : null
+
+        return data ? (data.data.list[data.data.list.length - 1] || null) : null
     }
 
     // 销毁

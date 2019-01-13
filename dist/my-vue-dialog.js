@@ -1380,7 +1380,7 @@ var dialogPlugin = {
      */
     getInstance: function getInstance(key) {
         var managerData = void 0;
-        if (key !== null) {
+        if (key == null) {
             managerData = DataBase_1.getLastManager();
         } else {
             managerData = DataBase_1.getManager(key);
@@ -1460,7 +1460,7 @@ var DialogManager = function () {
         (0, _classCallCheck3.default)(this, DialogManager);
 
         this._vue = _vue;
-        if ((typeof option === "undefined" ? "undefined" : (0, _typeof3.default)(option)) === 'object') {
+        if (option !== 'null' && (typeof option === "undefined" ? "undefined" : (0, _typeof3.default)(option)) === 'object') {
             // 如果用户未设置key，自动生成一个
             this._key = typeof option.key === 'string' || typeof option.key === 'number' ? '' + option.key : '' + uid++;
             this._defaultOption = (0, _assign2.default)({}, defaultOption, option);
@@ -1476,21 +1476,23 @@ var DialogManager = function () {
 
         // 打开对话框
         value: function open(option) {
-            var _this = this;
-
             if (!option.content) {
                 throw new Error('The component of Dialog option is required');
             }
+            var data = DataBase_1.getManager(this._key);
+            // 创建对话框，并把创建结果放到dialogManagerData里面
             option = (0, _assign2.default)({}, this.defaultOption, option);
             var dialog = new Dialog_1.Dialog(option, DataBase_1.getManager(this._key).data);
+            data.data.list.push(dialog);
             this._init();
             _promise2.default.resolve().then(function () {
                 return dialog.$option.onBeforeCreate.call(dialog);
             }).then(function (result) {
-                if (result) {
-                    // 将dialog放入list里面
-                    var data = DataBase_1.getManager(_this._key);
-                    data.data.list.push(dialog);
+                // 如果onBeforeCreate里面校验未通过，不打开对话框。移除掉对话框对象
+                if (result !== false) {
+                    dialog.$open();
+                } else {
+                    dialog.$destroy();
                 }
             });
             return dialog;
@@ -1539,7 +1541,7 @@ var DialogManager = function () {
         key: "topDialog",
         get: function get() {
             var data = DataBase_1.getManager(this.key);
-            return data ? data.data.list[data.data.list.length - 1] : null;
+            return data ? data.data.list[data.data.list.length - 1] || null : null;
         }
     }]);
     return DialogManager;
@@ -2888,26 +2890,30 @@ var vue_1 = __webpack_require__(22);
 var cid = 0;
 
 var Dialog = function () {
-    function Dialog($option, data) {
-        var _this = this;
-
+    function Dialog($option, _data) {
         (0, _classCallCheck3.default)(this, Dialog);
 
         this.$option = $option;
-        this.data = data;
+        this._data = _data;
         this.id = cid++;
         // 显示对话框
         this.$show = false;
         this.setContent($option.content);
-        // 打开的动画效果
-        setTimeout(function () {
-            _this.$show = true;
-        }, 50);
     }
-    // 设置对话框标题
-
 
     (0, _createClass3.default)(Dialog, [{
+        key: "$open",
+        value: function $open() {
+            var _this = this;
+
+            // 打开的动画效果
+            setTimeout(function () {
+                _this.$show = true;
+            }, 50);
+        }
+        // 设置对话框标题
+
+    }, {
         key: "setTitle",
         value: function setTitle(title) {
             this.$option.title = title;
@@ -3032,10 +3038,7 @@ var Dialog = function () {
                                 this.$show = false;
                                 setTimeout(function () {
                                     _this2.$option.onClose.call(_this2);
-                                    var data = _this2.data;
-                                    data.list.splice(data.list.findIndex(function (dialog) {
-                                        return dialog.id === _this2.id;
-                                    }), 1);
+                                    _this2.$destroy();
                                 }, 200);
                                 return _context.abrupt("return", true);
 
@@ -3056,6 +3059,22 @@ var Dialog = function () {
 
             return close;
         }()
+        /**
+         * 销毁对户框，将其从list里面移除
+         * @memberOf Dialog
+         */
+
+    }, {
+        key: "$destroy",
+        value: function $destroy() {
+            var _this3 = this;
+
+            var data = this._data;
+            data.list.splice(data.list.findIndex(function (dialog) {
+                return dialog.id === _this3.id;
+            }), 1);
+            this._data = null;
+        }
     }]);
     return Dialog;
 }();

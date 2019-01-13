@@ -46,7 +46,7 @@ let dialogPlugin: IDialogPlugin = {
      */
     getInstance(key?: string): IDialogManager{
         let managerData: DialogManagerData
-        if(key !== null){
+        if(key == null){
             managerData = getLastManager()
         } else {
             managerData = getManager(key)
@@ -60,3 +60,4 @@ let dialogPlugin: IDialogPlugin = {
 }
 
 export default dialogPlugin
+export * from './API'
