@@ -13,7 +13,7 @@
             >
                 <!-- 对话框头部 -->
                 <header class="my-dialog-header">
-                    {{props.dialog.$option.title}}
+                    {{props.dialog.$option.title}} 
                     <i class="my-dialog-close" v-if="props.dialog.$option.showClose" @click="props.dialog.close()">X</i>
                 </header>
 
@@ -28,7 +28,7 @@
         props: {
             // 打开的对话框数量
             dialog: {
-                type: Object,
+                type: Object,    
                 required: true,
             },
             // vue的对象

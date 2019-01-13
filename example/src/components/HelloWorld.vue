@@ -22,6 +22,9 @@ export default {
         openTemplate(){
             this.$MyDialog.open({
                 title: 'test',
+                width: 500,
+                height: 400,
+                showClose: false,
                 content: `<a>{{msg}}<button @click="$myDialog.close()">关闭</button></a>`,
                 propsData: {
                     msg: 'msg'

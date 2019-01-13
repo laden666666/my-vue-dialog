@@ -4089,7 +4089,7 @@ var render = function(_h, _vm) {
                   _vm._v(
                     "\n                " +
                       _vm._s(_vm.props.dialog.$option.title) +
-                      "\n                "
+                      " \n                "
                   ),
                   _vm.props.dialog.$option.showClose
                     ? _c(
