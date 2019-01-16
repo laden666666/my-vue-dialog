@@ -1,6 +1,6 @@
 {
   "name": "my-vue-dialog",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "基于Vue的对话框组件",
   "main": "dist/my-vue-dialog.js",
   "types": "dist/src/index.d.ts",
@@ -73,7 +73,7 @@
     "my-vue-dialog"
   ],
   "files": [
-    "dist/*.js"
+    "dist/*.*"
   ],
   "author": "laden666666",
   "license": "MIT",
