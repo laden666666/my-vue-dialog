@@ -9,6 +9,7 @@
     import MyDialog from './MyDialog'
 
     export default {
+        name: 'MyDialogList',
         props: {
             vue: {},
         },

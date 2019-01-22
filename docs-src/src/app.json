@@ -1,0 +1,36 @@
+{
+    "name": "my-vue-dialog",
+    "background": "BackgroundColor",
+    "version": "v0.1.0",
+    "subhead": "基于Vue的对话框组件",
+    "describe": "一个基于Vue的对话框组件，用于创建基于对话框的重量型应用。",
+    "link": [
+        {
+            "title": "文档",
+            "path": "/",
+            "primary": true
+        },
+        {
+            "title": "源码",
+            "path": "https://www.github.com/laden666666/my-vue-dialog"
+        }
+    ],
+    "menu": [
+        {
+            "title": "安装",
+            "path": "#/"
+        },
+        {
+            "title": "使用",
+            "path": "#/Useage"
+        },
+        {
+            "title": "安装",
+            "path": "#/API"
+        },
+        {
+            "title": "升级日志",
+            "path": "#/UpdateLog"
+        }
+    ]
+}

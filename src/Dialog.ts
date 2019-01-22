@@ -94,14 +94,22 @@ export class Dialog implements IDialog {
 
         let that = this
         this.$content = Vue.extend(componentOptions).extend({
+            beforeCreate(this: any){
+                this.$myDialog = that
+            },
             mounted(){
                 that.$option.onShow.call(that)
             },
-            computed: {
-                $myDialog: ()=> {
-                    return that
+            data(){
+                return {
+                    $myDialog: that
                 }
             },
+            // computed: {
+            //     $myDialog: ()=> {
+            //         return that
+            //     }
+            // },
         })
     }
 
