@@ -10,7 +10,9 @@ let component = {
     },
     template: 
         `<div class="dialog-content">
-            <button class="button" @click="$myDialog.resize({width: 500, height: 400})">修改</button>
+            <button class="button" @click="$myDialog.resize({width: 500, height: 400})">resize()方法同时修改对话框宽高</button>
+            <button class="button" @click="$myDialog.resize(300)">setWidth()方法单独修改对话框宽度</button>
+            <button class="button" @click="$myDialog.setHeight(200)">setHeight()方法单独修改对话框高度</button>
         </div>`
 }
 

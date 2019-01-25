@@ -45,7 +45,8 @@
 
         <H3>设置对话框大小</H3>
         <Demo :demo="Resize" title="设置对户框大小">
-            <P>注意使用$myDialog.reasize()设置对话大小</P>
+            <P>您可以使用使用$myDialog.reasize()同时修改宽和高</P>
+            <P>您也使用使用$myDialog.setWidth()和$myDialog.setHeight()分别修改宽与高</P>
         </Demo>
 
         <H3>获取对话框初始配置</H3>
