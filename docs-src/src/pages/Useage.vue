@@ -42,6 +42,21 @@
         <Demo :demo="Title" title="设置对户框标题">
             <P>注意使用$myDialog.setTitle()设置标题。</P>
         </Demo>
+
+        <H3>设置对话框大小</H3>
+        <Demo :demo="Resize" title="设置对户框大小">
+            <P>注意使用$myDialog.reasize()设置对话大小</P>
+        </Demo>
+
+        <H3>获取对话框初始配置</H3>
+        <Demo :demo="Option" title="获取初始传入的配置(只读)">
+            <P>注意使用$myDialog.getOption()获取初始传入的配置</P>
+        </Demo>
+
+        <H3>修改对话框内容</H3>
+        <Demo :demo="content" title="修改对话框内容">
+            <P>注意使用$myDialog.setContent()修改对话框内容</P>
+        </Demo>
     </Doc>
 </template>
 <script>
@@ -51,6 +66,9 @@ import MyString from '../demo/Useage/String'
 import Render from '../demo/Useage/Render'
 import Close from '../demo/Useage/Close'
 import Title from '../demo/Useage/Title'
+import Resize from '../demo/Useage/Resize'
+import Option from '../demo/Useage/Option'
+import content from '../demo/Useage/SetContent'
 export default {
     data(){
         return {
@@ -60,6 +78,9 @@ export default {
             Render,
             Close,
             Title,
+            Resize,
+            Option,
+            content,
             open2Code: 
 `SFC.vue:
 <template>
