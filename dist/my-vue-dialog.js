@@ -2992,7 +2992,10 @@ var Dialog = function () {
                     template: dialogComponent
                 };
             }
-            if (typeof dialogComponent === 'function') {
+            if (typeof dialogComponent === 'function' && dialogComponent.prototype instanceof vue_1.default) {
+                componentOptions = dialogComponent;
+            }
+            if (typeof dialogComponent === 'function' && !(dialogComponent.prototype instanceof vue_1.default)) {
                 componentOptions = {
                     props: (0, _keys2.default)(this.$option.propsData),
                     render: dialogComponent

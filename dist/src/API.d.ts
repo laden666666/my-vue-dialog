@@ -4,7 +4,7 @@ import Vue, { VNode, ComponentOptions, VueConstructor } from 'vue';
  */
 export declare type DialogComponent = ComponentOptions<any> | string | {
     (): VNode;
-};
+} | VueConstructor;
 /**
  * 创建对话框的配置
  * @interface DialogOption

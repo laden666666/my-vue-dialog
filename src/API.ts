@@ -3,7 +3,7 @@ import Vue, { VNode, ComponentOptions, VueConstructor } from 'vue'
 /**
  * render函数、template字符串模板、component配置
  */
-export type DialogComponent = ComponentOptions<any> | string | {(): VNode}
+export type DialogComponent = ComponentOptions<any> | string | {(): VNode} | VueConstructor
 
 /**
  * 创建对话框的配置

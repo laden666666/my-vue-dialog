@@ -17,10 +17,12 @@
             <span id="menu"></span>
             <router-view/>
         </Menu>
+        <!--PC和WAP自适应版-->
     </div>
 </template>
 <script>
 import app from './app.json'
+import debounce from 'lodash.debounce'
 
 var isFirefox = navigator.userAgent.indexOf("Firefox") != -1;
 
@@ -147,14 +149,49 @@ export default {
             this._pageY = undefined
         }
     },
+    mounted(){
+        let scrollY = 0
+        let scrollY2 = 0
+        let scrollHandle1 = ()=>{
+            if(scrollY2 != scrollY){
+                scrollY2 = scrollY
+            }
+            scrollY = window.scrollY
+        }
+        let scrollHandle2 = debounce(()=>{
+            if(!this.isScrolling && this.isHome){
+                if (scrollY > 0 && scrollY < scrollY2 && scrollY < window.innerHeight) {
+                    this.showHome()
+                }
+            }
+        }, 20)
+
+        window.addEventListener('scroll', scrollHandle1, {
+            passive: true
+        })
+        window.addEventListener('scroll', scrollHandle2, {
+            passive: true
+        })
+        this.$once('hook:beforeDestroy', function () {
+            window.removeEventListener('scroll', scrollHandle1, {
+                passive: true
+            })
+            window.removeEventListener('scroll', scrollHandle2, {
+                passive: true
+            })
+        })
+    },
 }
 </script>
 <style>
-html, body{
+html, body {
     padding: 0;
     margin: 0;
+}
+html, body, body code, body kbd, body pre, body samp {
     font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
 }
+
 *{
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
@@ -179,38 +216,5 @@ html, body{
 }
 *:hover::-webkit-scrollbar-track{
     background:hsla(0,0%,53%,.1)
-}
-
-.button{
-    margin : 5px 0px ;
-    font-size : 14px ;
-    line-height : 1.42857 ;
-    color : rgb(51, 51, 51) ;
-    overflow : visible ;
-    cursor : pointer ;
-    padding : 6px 12px ;
-    white-space : nowrap ;
-    vertical-align : middle ;
-    touch-action : manipulation ;
-    user-select : none ;
-    background-image : none ;
-    border-width : 1px ;
-    border-style : solid ;
-    border-color : rgb(204, 204, 204) ;
-    border-radius : 4px ;
-    background-color : rgb(255, 255, 255) ;
-    outline: none;
-}
-.button:hover{
-    background-color: #eee;
-}
-.button:active{
-    background-color: #ddd;
-    box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
-    border-color : #aaa;
-}
-.dialog-content{
-    padding: 10px 20px;
-    box-sizing: border-box;
 }
 </style>

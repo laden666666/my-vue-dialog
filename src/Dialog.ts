@@ -4,7 +4,7 @@
  */
 import {DialogOption, DialogComponent} from './API';
 import { IDialog } from '../dist/src/API';
-import Vue, {ComponentOptions, VueConstructor} from 'vue';
+import Vue, {ComponentOptions, VueConstructor, VNode} from 'vue';
 
 let cid = 0;
 
@@ -75,25 +75,28 @@ export class Dialog implements IDialog {
     setContent(dialogComponent: DialogComponent){
         // 根据content的不同类型，创建不同类型的对象。对于component以外的控件形式（render和string）
         // 通过propsData动态计算出props
-        let componentOptions: ComponentOptions<any>
+        let componentOptions: ComponentOptions<any> | VueConstructor
         if(typeof dialogComponent === 'string'){
             componentOptions = {
                 props: Object.keys(this.$option.propsData),
                 template: dialogComponent,
             }
         } 
-        if(typeof dialogComponent === 'function') {
+        if(typeof dialogComponent === 'function' && dialogComponent.prototype instanceof Vue) {
+            componentOptions = dialogComponent as VueConstructor
+        }
+        if(typeof dialogComponent === 'function' && !(dialogComponent.prototype instanceof Vue)) {
             componentOptions = {
                 props: Object.keys(this.$option.propsData),
-                render: dialogComponent,
+                render: dialogComponent as ()=>VNode,
             }
-        } 
+        }
         if(typeof dialogComponent === 'object') {
             componentOptions = dialogComponent
         }
 
         let that = this
-        this.$content = Vue.extend(componentOptions).extend({
+        this.$content = Vue.extend(componentOptions as any).extend({
             beforeCreate(this: any){
                 this.$myDialog = that
             },
