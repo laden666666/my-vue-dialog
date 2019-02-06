@@ -1323,6 +1323,9 @@ Object.defineProperty(exports, "__esModule", {
 //
 //
 //
+//
+//
+//
 
 exports.default = {
     props: {
@@ -1436,7 +1439,7 @@ var defaultOption = {
     title: '',
     height: 300,
     width: 400,
-    delay: 0,
+    // delay: 0,
     content: null,
     propsData: {},
     onBeforeCreate: function onBeforeCreate() {
@@ -1447,7 +1450,7 @@ var defaultOption = {
         return true;
     },
     onClose: function onClose() {},
-    scrollable: false,
+    // scrollable: false,
     showClose: true,
     showMask: true,
     maskClosable: false,
@@ -2986,21 +2989,28 @@ var Dialog = function () {
             // 根据content的不同类型，创建不同类型的对象。对于component以外的控件形式（render和string）
             // 通过propsData动态计算出props
             var componentOptions = void 0;
+            // 字符串认为是template
             if (typeof dialogComponent === 'string') {
                 componentOptions = {
                     props: (0, _keys2.default)(this.$option.propsData),
                     template: dialogComponent
                 };
             }
-            if (typeof dialogComponent === 'function' && dialogComponent.prototype instanceof vue_1.default) {
+            // vue的VueConstructor
+            if (typeof dialogComponent === 'function' && dialogComponent.name === 'VueComponent') {
                 componentOptions = dialogComponent;
             }
-            if (typeof dialogComponent === 'function' && !(dialogComponent.prototype instanceof vue_1.default)) {
+            // 函数认为是render函数
+            if (typeof dialogComponent === 'function' && dialogComponent.name !== 'VueComponent') {
                 componentOptions = {
                     props: (0, _keys2.default)(this.$option.propsData),
-                    render: dialogComponent
+                    render: function render(h) {
+                        console.log(this);
+                        return dialogComponent.call(this, h);
+                    }
                 };
             }
+            // object对象认为是ComponentOptions
             if ((typeof dialogComponent === "undefined" ? "undefined" : (0, _typeof3.default)(dialogComponent)) === 'object') {
                 componentOptions = dialogComponent;
             }
@@ -3016,6 +3026,9 @@ var Dialog = function () {
                     return {
                         $myDialog: that
                     };
+                },
+                beforeDestroy: function beforeDestroy() {
+                    delete this.$myDialog;
                 }
             });
         }
@@ -3046,7 +3059,7 @@ var Dialog = function () {
                                 // 关闭动画
                                 this.$show = false;
                                 setTimeout(function () {
-                                    _this2.$option.onClose.call(_this2);
+                                    _this2.$option.onClose.call(_this2, returnData);
                                     _this2.$destroy();
                                 }, 200);
                                 return _context.abrupt("return", true);
@@ -4087,7 +4100,10 @@ var render = function(_h, _vm) {
   var _c = _vm._c
   return _c(
     "div",
-    { staticClass: "my-dialog" },
+    {
+      staticClass: "my-dialog",
+      style: { zIndex: _vm.props.dialog.$option.zIndex }
+    },
     [
       _vm.props.dialog.$option.showMask
         ? _c("div", {
@@ -4150,19 +4166,31 @@ var render = function(_h, _vm) {
                 ]),
                 _vm._v(" "),
                 _c(
-                  _vm.props.dialog.$content,
-                  _vm._b(
-                    { tag: "component" },
-                    "component",
-                    _vm.props.dialog.$option.propsData,
-                    false
-                  )
+                  "div",
+                  { staticClass: "my-dialog-content" },
+                  [
+                    _c(
+                      _vm.props.dialog.$content,
+                      _vm._b(
+                        { tag: "component" },
+                        "component",
+                        _vm.props.dialog.$option.propsData,
+                        false
+                      )
+                    )
+                  ],
+                  1
                 )
-              ],
-              1
+              ]
             )
           : _vm._e()
-      ])
+      ]),
+      _vm._v(" "),
+      _c("div", {
+        domProps: {
+          innerHTML: _vm._s("<style>body{overflow-y: hidden;}</style>")
+        }
+      })
     ],
     1
   )

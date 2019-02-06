@@ -17,7 +17,7 @@
     ],
     "menu": [
         {
-            "title": "安装",
+            "title": "my-vue-dialog",
             "path": "#/"
         },
         {
@@ -25,7 +25,11 @@
             "path": "#/Useage"
         },
         {
-            "title": "安装",
+            "title": "边界情况",
+            "path": "#/EdgeCases"
+        },
+        {
+            "title": "API",
             "path": "#/API"
         },
         {

@@ -14,7 +14,7 @@ export interface DialogOption {
     title?: string,
 
     // 延迟多少秒后打开
-    delay?: number | string,
+    // delay?: number | string,
 
     // 宽度
     width?: number | string,
@@ -23,7 +23,7 @@ export interface DialogOption {
     height?: number | string,
 
     //风格参考了bootstrap： primary warn info warning danger 
-    type?: 'primary' | 'warn' | 'info' | 'warning' | 'danger',
+    // type?: 'primary' | 'warn' | 'info' | 'warning' | 'danger',
 
     // 传入的内容
     content: DialogComponent,
@@ -32,7 +32,7 @@ export interface DialogOption {
     propsData: object,
 
     // 是否在 dialog 出现时将 body 滚动锁定
-    scrollable?: boolean,
+    // scrollable?: boolean,
 
     //是否显示右上角关闭按钮
     showClose?: boolean,

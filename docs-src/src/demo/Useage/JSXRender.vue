@@ -6,7 +6,7 @@ export default {
     methods: {
         open(){
             this.$MyDialog.open({
-                content: '<div class="dialog-content">用一个字符串做对话框内容</div>'       
+                content: (h)=><div class="dialog-content">用jsx做render函数实现</div>
             })
         }
     }

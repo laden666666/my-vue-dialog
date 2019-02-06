@@ -4,7 +4,7 @@
  */
 import {DialogOption, DialogComponent} from './API';
 import { IDialog } from '../dist/src/API';
-import Vue, {ComponentOptions, VueConstructor, VNode} from 'vue';
+import Vue, {ComponentOptions, VueConstructor, VNode, CreateElement} from 'vue';
 
 let cid = 0;
 
@@ -76,21 +76,29 @@ export class Dialog implements IDialog {
         // 根据content的不同类型，创建不同类型的对象。对于component以外的控件形式（render和string）
         // 通过propsData动态计算出props
         let componentOptions: ComponentOptions<any> | VueConstructor
+        
+        // 字符串认为是template
         if(typeof dialogComponent === 'string'){
             componentOptions = {
                 props: Object.keys(this.$option.propsData),
                 template: dialogComponent,
             }
         } 
-        if(typeof dialogComponent === 'function' && dialogComponent.prototype instanceof Vue) {
+        // vue的VueConstructor
+        if(typeof dialogComponent === 'function' && dialogComponent.name === 'VueComponent') {
             componentOptions = dialogComponent as VueConstructor
         }
-        if(typeof dialogComponent === 'function' && !(dialogComponent.prototype instanceof Vue)) {
+        // 函数认为是render函数
+        if(typeof dialogComponent === 'function' && dialogComponent.name !== 'VueComponent') {
             componentOptions = {
                 props: Object.keys(this.$option.propsData),
-                render: dialogComponent as ()=>VNode,
+                render: function(h: CreateElement){
+                    console.log(this)
+                    return dialogComponent.call(this, h) as VNode
+                },
             }
         }
+        // object对象认为是ComponentOptions
         if(typeof dialogComponent === 'object') {
             componentOptions = dialogComponent
         }
@@ -107,6 +115,9 @@ export class Dialog implements IDialog {
                 return {
                     $myDialog: that
                 }
+            },
+            beforeDestroy(){
+                delete this.$myDialog
             },
             // computed: {
             //     $myDialog: ()=> {
@@ -129,7 +140,7 @@ export class Dialog implements IDialog {
             // 关闭动画
             this.$show = false
             setTimeout(()=>{
-                this.$option.onClose.call(this)
+                this.$option.onClose.call(this, returnData)
                 this.$destroy()
             }, 200)
             

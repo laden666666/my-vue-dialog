@@ -1,5 +1,5 @@
 <template>
-    <button class="button" @click="open">按钮</button>
+    <button class="button" @click="open">打开</button>
 </template>
 <script>
 
@@ -10,9 +10,16 @@ let component1 = {
     },
     template: 
         `<div class="dialog-content">
-            <button class="button" @click="$myDialog.setContent('<div>new content</div>')">按钮</button>
             <span>old content</span>
-        </div>`
+            <button class="button" @click="setContent">
+                按钮
+            </button>
+        </div>`,
+    methods: {
+        setContent(){
+            this.$myDialog.setContent('<div class="dialog-content"><span>new content</span></div>')
+        }
+    }
 }
 
 export default {

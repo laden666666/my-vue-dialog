@@ -1,5 +1,5 @@
 <template>
-    <button class="button" @click="open">按钮</button>
+    <button class="button" @click="open">打开</button>
 </template>
 <script>
 
@@ -10,7 +10,7 @@ let component = {
     },
     template: 
         `<div class="dialog-content">
-            <span> {{$myDialog.getOption()}}</span>
+            <pre> {{JSON.stringify($myDialog.getOption(), null, 4)}}</pre>
         </div>`
 }
 

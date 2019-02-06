@@ -9,11 +9,11 @@
         <Li>更好的对话框编程体验</Li>
 
         <H2>兼容性</H2>
-        <Li>Vue >= v2.5.0</Li>
-        <Li>IE >= 9</Li>
-        <Li>Chrome >= 40</Li>
-        <Li>安卓 >= 4.4</Li>
-        <Li>IOS >= 9.0</Li>
+        <H3>Vue版本兼容性</H3>
+        <P>目前<Strong>my-vue-dialog</Strong>仅兼容<Strong>版本2.5.0及以上的Vue</Strong>。</P>
+        <Alert>如果用户有兼容性需求，我们可以考虑向上兼容到2.3.0以上版本的Vue。</Alert>
+        <H3>浏览器兼容性</H3>
+        <BrowserList IE=">= 9" edge Chrome safari firefox android=">= 4.4" IOS=">= 9.0"></BrowserList>
 
         <H2>安装</H2>
         <H3>CDN 引入</H3>
@@ -44,7 +44,7 @@ new Vue({
     myDialog: {}
 })
 `" lang="javascript"></Code>
-        <P>注意：如果未设置myDialog，My-Vue-Dialog将无法使用。</P>
+        <Alert>注意：如果new Vue时候未设置myDialog，My-Vue-Dialog将无法使用。</Alert>
     </Doc>
 </template>
 <script>

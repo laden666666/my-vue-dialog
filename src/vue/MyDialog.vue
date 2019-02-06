@@ -1,7 +1,7 @@
 <template functional>
     <!-- 为了让该控件不出现在vue-tools里面，所有使用函数式控件。
     目前该方法仅支持vue2.5+，为了能够适配vue2.3+，未来可能修改为render函数重写 -->
-    <div class="my-dialog">
+    <div class="my-dialog" :style="{zIndex: props.dialog.$option.zIndex}">
         <!-- 防止用户点击的弹层 -->
         <div v-if="props.dialog.$option.showMask" @click="props.dialog.$option.maskClosable && props.dialog.close()" 
             class="my-dialog-mask"></div>
@@ -21,9 +21,12 @@
                 </header>
 
                 <!-- 使用动态组件渲染对话框内容 -->
-                <component v-bind="props.dialog.$option.propsData" :is="props.dialog.$content"></component>
+                <div class="my-dialog-content">
+                    <component v-bind="props.dialog.$option.propsData" :is="props.dialog.$content"></component>
+                </div>
             </div>
         </transition>
+        <div v-html="'<style>body{overflow-y: hidden;}</style>'"></div>
     </div>
 </template>
 <script>
@@ -35,7 +38,7 @@
                 required: true,
             },
             // vue的对象
-            vue: {}
+            vue: {},
         },
         name: 'MyDialog'
     }
@@ -49,6 +52,7 @@
         z-index: 1000;
         width: 100%;
         height: 100%;
+        box-sizing: border-box;
     }
     .my-dialog-mask{
         position: fixed;
@@ -92,7 +96,8 @@
     }
     .my-dialog-header {
         border-bottom: 1px solid #e8e8e8;
-        padding: 14px 16px;
+        height: 44px;
+        padding: 12px 16px;
         line-height: 20px;
         font-size: 14px;
         color: rgba(0,0,0,0.65);
@@ -104,10 +109,20 @@
     }
     .my-dialog-close{
         position: absolute;
-        right: 5px;
+        right: 16px;
         top: 50%;
         transform: translateY(-50%);
         cursor: pointer;
         height: 20px;
+    }
+    .my-dialog-content{
+        position: absolute;
+        top: 44px;
+        bottom: 0;
+        left: 0;
+        height: auto;
+        height: calc(100% - 44px);
+        width : 100%;
+        overflow: auto;
     }
 </style>

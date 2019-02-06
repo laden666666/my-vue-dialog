@@ -11,13 +11,10 @@ export declare type DialogComponent = ComponentOptions<any> | string | {
  */
 export interface DialogOption {
     title?: string;
-    delay?: number | string;
     width?: number | string;
     height?: number | string;
-    type?: 'primary' | 'warn' | 'info' | 'warning' | 'danger';
     content: DialogComponent;
     propsData: object;
-    scrollable?: boolean;
     showClose?: boolean;
     showMask?: boolean;
     maskClosable?: boolean;

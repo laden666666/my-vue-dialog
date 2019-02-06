@@ -1,5 +1,5 @@
 <template>
-    <button class="button" @click="open">按钮</button>
+    <button class="button" @click="open">打开</button>
 </template>
 <script>
 import SFC from "./SFC.vue";
