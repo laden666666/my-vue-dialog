@@ -16,3 +16,4 @@ selenium-debug.log
 *.sln
 coverage
 package-lock.json.rej
+.npmrc
