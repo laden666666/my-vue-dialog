@@ -31,6 +31,18 @@
 </table>
 
 
+## 使用文档
+
+请参考[https://laden666666.github.io/my-vue-dialog/](https://laden666666.github.io/my-vue-dialog/ "") 
+
+
+
+## 源码
+
+[github](https://github.com/laden666666/my-vue-dialog "") ，[码云](https://gitee.com/laden666666/my-vue-dialog "") 
+
+
+
 ## 安装
 
 ### CDN 引入

@@ -12,6 +12,12 @@
         <p>目前<span>MyDailog</span>仅兼容<span>版本2.5.0及以上的Vue</span>。</p>
         <h3>浏览器兼容性</h3>
         <browser-list IE=">= 9" edge Chrome safari firefox android=">= 4.4" IOS=">= 9.0"></browser-list>
+    
+        <h2>使用文档</h2>
+        <p>请参考<a href="https://laden666666.github.io/my-vue-dialog/">https://laden666666.github.io/my-vue-dialog/</a></p>
+
+        <h2>源码</h2>
+        <p><a href="https://github.com/laden666666/my-vue-dialog">github</a>，<a href="https://gitee.com/laden666666/my-vue-dialog">码云</a></p>
 
         <h2>安装</h2>
         <h3>CDN 引入</h3>
