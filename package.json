@@ -1,7 +1,7 @@
 {
   "name": "my-vue-dialog",
   "version": "0.1.0",
-  "description": "基于Vue的对话框组件",
+  "description": "一个基于Vue的对话框组件，用于创建基于对话框的中重量型应用。",
   "main": "dist/my-vue-dialog.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
