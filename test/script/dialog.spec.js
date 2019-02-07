@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import MyDialogPlugin from '../../src'
 
+import TestSFC from './TestSFC'
+import TestClass from './TestClass'
+import TestJSX from './TestJSX'
+
 Vue.use(MyDialogPlugin)
 
 
@@ -132,6 +136,133 @@ describe('测试MyDialogAPI', function () {
                     if(this.getTitle() == 'xxxx'){
                         resolve()
                     }
+                }
+            })
+        })
+    });
+
+    it('vue的SFC做内容', async function () {
+        await new Promise((resolve)=>{
+            vueInstance.$MyDialog.open({
+                content: TestSFC,
+                onClose(data){
+                    if(data == 'ok'){
+                        resolve()
+                    }
+                }
+            })
+        })
+    });
+
+    it('vue的装饰器和class做内容', async function () {
+        await new Promise((resolve)=>{
+            vueInstance.$MyDialog.open({
+                content: TestClass,
+                onClose(data){
+                    if(data == 'ok'){
+                        resolve()
+                    }
+                }
+            })
+        })
+    });
+
+    it('vue的extend子类做内容', async function () {
+        await new Promise((resolve)=>{
+            vueInstance.$MyDialog.open({
+                content: Vue.extend({template: '<span></span>'}).extend({
+                    mounted(){
+                        this.$myDialog.close('ok')
+                    }
+                }),
+                onClose(data){
+                    if(data == 'ok'){
+                        resolve()
+                    }
+                }
+            })
+        })
+    });
+
+    it('vue的ComponentOptions做内容', async function () {
+        await new Promise((resolve)=>{
+            vueInstance.$MyDialog.open({
+                content: {
+                    mounted(){
+                        this.$myDialog.close('ok')
+                    },
+                    template: '<span></span>'
+                },
+                onClose(data){
+                    if(data == 'ok'){
+                        resolve()
+                    }
+                }
+            })
+        })
+    });
+
+    it('字符串模板做内容', async function () {
+        await new Promise((resolve)=>{
+            vueInstance.$MyDialog.open({
+                content: '<span id="test001">{{test}}</span>',
+                onClose(data){
+                    if(data == 'ok'){
+                        resolve()
+                    }
+                },
+                onShow(){
+                    let span = document.querySelector('#test001')
+                    if(span.innerHTML == '[test]'){
+                        this.close('ok')
+                    }
+                },
+                propsData: {
+                    test: '[test]'
+                }
+            })
+        })
+    });
+
+    it('render做内容', async function () {
+        await new Promise((resolve)=>{
+            vueInstance.$MyDialog.open({
+                content: function(h){ return h('span', {attrs: {id: 'test002'}}, [this.test])},
+                onClose(data){
+                    if(data == 'ok'){
+                        resolve()
+                    }
+                },
+                onShow(){
+                    let span = document.querySelector('#test002')
+                    if(span.innerHTML == '[test]'){
+                        this.close('ok')
+                    }
+                },
+                propsData: {
+                    test: '[test]'
+                }
+            })
+        })
+    });
+
+    it('jsx做内容', async function () {
+        await new Promise((resolve)=>{
+            vueInstance.$MyDialog.open({
+                content: TestJSX,
+                onClose(data){
+                    if(data == 'ok'){
+                        resolve()
+                    }
+                },
+                onShow(){
+                    let span = document.querySelector('#test003')
+                    if(span.innerHTML == '[test]'){
+                        this.close('ok')
+                    }
+                },
+                propsData: {
+                    test: '[test]'
                 }
             })
         })

@@ -1,7 +1,7 @@
-import { IDialogPlugin } from './API';
 import { careateManager, destroyManager, getManager, getLastManager, DialogManagerData } from './DataBase';
 import Vue, {VueConstructor} from 'vue';
-import { IDialogManager } from '../dist/src/API';
+import { MyDialogPlugin, MyDialog } from './API';
+export * from './API';
 
 const MY_DIALOG_MANAGER_KEY = '__myDialogKey'
 
@@ -11,7 +11,7 @@ declare const PLUGIN_VERSION: string
 /**
  * 对外暴露的插件
  */
-let dialogPlugin: IDialogPlugin = {
+let dialogPlugin: MyDialogPlugin = {
     install(vue: VueConstructor, options?: any){
         vue.mixin({
             beforeCreate(){
@@ -44,7 +44,7 @@ let dialogPlugin: IDialogPlugin = {
      * @param {string} [key] 
      * @returns {IDialogManager} 
      */
-    getInstance(key?: string): IDialogManager{
+    getInstance(key?: string): MyDialog{
         let managerData: DialogManagerData
         if(key == null){
             managerData = getLastManager()

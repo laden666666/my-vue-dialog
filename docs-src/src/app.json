@@ -3,7 +3,7 @@
     "background": "BackgroundColor",
     "version": "v0.1.0",
     "subhead": "基于Vue的对话框组件",
-    "describe": "一个基于Vue的对话框组件，用于创建基于对话框的重量型应用。",
+    "describe": "一个基于Vue的对话框组件，用于创建基于对话框的中重量型应用。",
     "link": [
         {
             "title": "文档",

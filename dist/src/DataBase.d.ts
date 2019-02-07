@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import DialogManager from './DialogManager';
-import { Dialog } from './Dialog';
-import { DialogManagerOption } from '../dist/src/API';
+import { DialogImpl } from './Dialog';
+import { MyDialogOption } from './API';
 export declare type DialogManagerData = {
     dialogManager: DialogManager;
     data: {
-        list: Dialog[];
+        list: DialogImpl[];
     };
 };
 /**
@@ -13,7 +13,7 @@ export declare type DialogManagerData = {
  * @export
  * @param {string} key
  */
-export declare function careateManager(option: string | DialogManagerOption, vue: Vue): DialogManagerData;
+export declare function careateManager(option: string | MyDialogOption, vue: Vue): DialogManagerData;
 /**
  * 根据key取出DialogManagerData对象
  * @export

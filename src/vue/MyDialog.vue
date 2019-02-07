@@ -26,7 +26,7 @@
                 </div>
             </div>
         </transition>
-        <div v-html="'<style>body{overflow-y: hidden;}</style>'"></div>
+        <div v-html="'<style>body{overflow-y: hidden;padding-right: ' + props.dialog.$calcBodyScrollWidth + 'px;}</style>'"></div>
     </div>
 </template>
 <script>
@@ -39,6 +39,10 @@
             },
             // vue的对象
             vue: {},
+            // 计算body的滚动条宽度，这个方法y.clientWidth
+            calcBodyScrollWidth: {
+                type: Number
+            },
         },
         name: 'MyDialog'
     }

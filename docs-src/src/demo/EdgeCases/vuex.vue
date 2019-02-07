@@ -4,15 +4,17 @@
 <script>
 
 let component = {
-    data: function(){
+    data() {
         return {
-            title: this.$myDialog.getTitle()
+            count: 1
         }
     },
+    // 注意$myDialog.close(返回值)会将值传递给父控件的beforeClose和Close事件
     template: 
         `<div class="dialog-content">
-            <input v-model="title" />
-            <button class="button" @click="$myDialog.setTitle(title)">设置标题</button>
+            {{count}}<button class="button" @click="count = count+1">
+                +1
+            </button>
         </div>`
 }
 
@@ -20,8 +22,7 @@ export default {
     methods: {
         open(){
             this.$MyDialog.open({
-                title: '原始标题',
-                content: component       
+                content: component,
             })
         }
     }

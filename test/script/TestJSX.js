@@ -1,0 +1,1 @@
+export default function(h){return <span id="test003">{this.test}</span>}

@@ -1,7 +1,7 @@
 {
   "name": "my-vue-doc",
   "version": "1.0.0",
-  "description": "",
+  "description": "一个基于Vue的对话框组件，用于创建基于对话框的中重量型应用。",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "doc": "docjsx c -p api md ./doc-jsx/README.jsx ./",

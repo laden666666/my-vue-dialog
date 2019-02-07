@@ -11,7 +11,7 @@
     "env": {
         "test": {
             "presets": ["env", "stage-2"],
-            "plugins": ["istanbul", "transform-runtime"]
+            "plugins": ["istanbul", "transform-runtime", "transform-vue-jsx", "transform-decorators-legacy"]
         }
     }
 }

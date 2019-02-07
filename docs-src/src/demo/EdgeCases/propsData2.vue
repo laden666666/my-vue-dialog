@@ -47,7 +47,7 @@ export default {
         }
     },
     mounted(){
-        setInterval(()=>{
+        let timeID = setInterval(()=>{
             this.count++
             this.object.count++
         }, 1000)

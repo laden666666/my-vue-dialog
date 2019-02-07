@@ -3,17 +3,22 @@
  * @file 对话框控制逻辑
  */
 import {DialogOption, DialogComponent} from './API';
-import { IDialog } from '../dist/src/API';
+import { Dialog } from '../dist/src/API';
 import Vue, {ComponentOptions, VueConstructor, VNode, CreateElement} from 'vue';
 
 let cid = 0;
 
-export class Dialog implements IDialog {
+function isVueConstructor(test: VueConstructor): boolean{
+    return typeof test === 'function' && (test.prototype instanceof Vue || (test['cid'] != null && test['extendOptions'] != null))
+}
+
+export class DialogImpl implements Dialog {
 
     id: number = cid++
 
     constructor(public $option: DialogOption, private _data: Vue){
         this.setContent($option.content)
+        this.$calcBodyScrollWidth = window.innerWidth - document.body.clientWidth
     }
 
     $open(){
@@ -85,15 +90,14 @@ export class Dialog implements IDialog {
             }
         } 
         // vue的VueConstructor
-        if(typeof dialogComponent === 'function' && dialogComponent.name === 'VueComponent') {
+        if(typeof dialogComponent === 'function' && isVueConstructor(dialogComponent as VueConstructor)) {
             componentOptions = dialogComponent as VueConstructor
         }
         // 函数认为是render函数
-        if(typeof dialogComponent === 'function' && dialogComponent.name !== 'VueComponent') {
+        if(typeof dialogComponent === 'function' && !isVueConstructor(dialogComponent as VueConstructor)) {
             componentOptions = {
                 props: Object.keys(this.$option.propsData),
                 render: function(h: CreateElement){
-                    console.log(this)
                     return dialogComponent.call(this, h) as VNode
                 },
             }
@@ -109,7 +113,9 @@ export class Dialog implements IDialog {
                 this.$myDialog = that
             },
             mounted(){
-                that.$option.onShow.call(that)
+                this.$nextTick(()=>{
+                    that.$option.onShow.call(that)
+                })
             },
             data(){
                 return {
@@ -132,6 +138,9 @@ export class Dialog implements IDialog {
 
     // 显示对话框
     $show: boolean = false
+
+    // 打开时候body的滚动条宽度，仿iview那种在打开对话框后隐藏body的y滚动条，并将滚动条的宽度加到body的padding-right上
+    $calcBodyScrollWidth: number = 0
 
     // 关闭
     async close(returnData: any): Promise<boolean>{

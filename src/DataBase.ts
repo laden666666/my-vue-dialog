@@ -1,8 +1,8 @@
 
 import Vue from 'vue';
 import DialogManager from './DialogManager';
-import { Dialog } from './Dialog';
-import { DialogManagerOption } from '../dist/src/API';
+import { DialogImpl } from './Dialog';
+import { MyDialogOption } from './API';
 
 // 保存DialogManager对应的数据的对象
 export type DialogManagerData = {
@@ -10,7 +10,7 @@ export type DialogManagerData = {
 
     // 对户框dialogManager的数据，该数据会保存到vue的对象里面
     data:{
-        list: Dialog[]
+        list: DialogImpl[]
     }
 }
 
@@ -27,7 +27,7 @@ let lastKey: string
  * @export
  * @param {string} key 
  */
-export function careateManager(option: string | DialogManagerOption, vue: Vue): DialogManagerData{
+export function careateManager(option: string | MyDialogOption, vue: Vue): DialogManagerData{
 
     let dialogManager = new DialogManager(option, vue)
 

@@ -1,7 +1,6 @@
-import { DialogOption, IDialogManager, IDialog } from './API';
-import { DialogManagerOption } from '../dist/src/API';
+import { DialogOption, MyDialog, Dialog, MyDialogOption } from './API';
 import { getManager } from './DataBase';
-import { Dialog } from './Dialog';
+import { DialogImpl } from './Dialog';
 import Vue, {ComponentOptions} from 'vue';
 
 declare function require<T>(name: string): T
@@ -35,9 +34,9 @@ let uid = 0
 /**
  * 对话框控制对象，所有对话框操作的核心类
  */
-class DialogManager implements IDialogManager {
+class MyDialogImpl implements MyDialog {
 
-    constructor(option: string | DialogManagerOption, private _vue: Vue){
+    constructor(option: string | MyDialogOption, private _vue: Vue){
         if(option !== 'null' && typeof option === 'object') {
             // 如果用户未设置key，自动生成一个
             this._key = (typeof option.key === 'string' || typeof option.key === 'number') ?  
@@ -64,23 +63,23 @@ class DialogManager implements IDialogManager {
     }
     
     // 打开对话框
-    open(option?: DialogOption): IDialog{
+    open(option?: DialogOption): Dialog{
         if(!option.content){
             throw new Error('The component of Dialog option is required')
         }
         
         let data = getManager(this._key)
 
-        // 创建对话框，并把创建结果放到dialogManagerData里面
+        // 创建对话框，并把创建结果放到MyDialogData里面
         option = { ...this.defaultOption, ...option }
-        let dialog: Dialog = new Dialog(option, getManager(this._key).data as any)
+        let dialog: DialogImpl = new DialogImpl(option, getManager(this._key).data as any)
         data.data.list.push(dialog)
 
         this._init()
 
         Promise.resolve()
             .then(()=>{
-                return dialog.$option.onBeforeCreate.call(dialog)
+                return dialog.$option.onBeforeCreate.call(dialog, dialog.$option)
             })
             .then(result=>{
                 // 如果onBeforeCreate里面校验未通过，不打开对话框。移除掉对话框对象
@@ -95,7 +94,7 @@ class DialogManager implements IDialogManager {
     }
 
     // 最新打开的对话框
-    get topDialog(): IDialog{
+    get topDialog(): DialogImpl{
         let data = getManager(this.key)
 
         return data ? (data.data.list[data.data.list.length - 1] || null) : null
@@ -130,4 +129,4 @@ class DialogManager implements IDialogManager {
     }
 }
 
-export default DialogManager
+export default MyDialogImpl

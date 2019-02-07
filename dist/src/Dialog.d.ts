@@ -2,9 +2,9 @@
  * @file 对话框控制逻辑
  */
 import { DialogOption, DialogComponent } from './API';
-import { IDialog } from '../dist/src/API';
+import { Dialog } from '../dist/src/API';
 import Vue, { VueConstructor } from 'vue';
-export declare class Dialog implements IDialog {
+export declare class DialogImpl implements Dialog {
     $option: DialogOption;
     private _data;
     id: number;
@@ -24,6 +24,7 @@ export declare class Dialog implements IDialog {
     setContent(dialogComponent: DialogComponent): void;
     $content: VueConstructor;
     $show: boolean;
+    $calcBodyScrollWidth: number;
     close(returnData: any): Promise<boolean>;
     /**
      * 销毁对户框，将其从list里面移除
