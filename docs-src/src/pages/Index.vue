@@ -17,7 +17,7 @@
 
         <H2>安装</H2>
         <H3>CDN 引入</H3>
-        <P>通过<A href="unpkg.com/my-vue-dialog">unpkg.com/my-vue-dialog</A>可以访问<Strong>MyDailog</Strong>最新版本的资源，在页面上引入js和css文件即可开始使用：</p>
+        <P>通过<A href="https://unpkg.com/my-vue-dialog">unpkg.com/my-vue-dialog</A>可以访问<Strong>MyDailog</Strong>最新版本的资源，在页面上引入js和css文件即可开始使用：</p>
         <Code :code="cdn" lang="html"></Code>
         
         <H3>npm和webpack引入</H3>

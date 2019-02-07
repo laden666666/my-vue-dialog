@@ -118,6 +118,7 @@
         transform: translateY(-50%);
         cursor: pointer;
         height: 20px;
+        width: 20px;
     }
     .my-dialog-content{
         position: absolute;
