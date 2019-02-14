@@ -9,6 +9,9 @@
     "dev": "webpack --config ./build/webpack.base.conf.js --progress --hide-modules --watch",
     "build": "webpack --config ./build/webpack.prod.conf.js --progress --hide-modules",
     "doc": "docjsx c md -p api ./doc-jsx/README.jsx ./",
+    "docinit": "mydoc init",
+    "docdev": "mydoc dev",
+    "docbuild": "mydoc build",
     "master": "git checkout master && git merge develop && git push origin master && git checkout develop && git push origin develop"
   },
   "devDependencies": {
@@ -41,6 +44,7 @@
     "mocha": "^5.2.0",
     "my-doc-jsx": "^0.4.2",
     "my-doc-jsx-plugin-api": "^0.1.1",
+    "my-vue-doc": "0.0.2",
     "optimize-css-assets-webpack-plugin": "^3.2.0",
     "postcss-import": "^11.1.0",
     "postcss-loader": "^2.1.6",
