@@ -3,7 +3,7 @@
     目前该方法仅支持vue2.5+，为了能够适配vue2.3+，未来可能修改为render函数重写 -->
     <div class="my-dialog" :style="{zIndex: props.dialog.$option.zIndex}">
         <!-- 防止用户点击的弹层 -->
-        <div v-if="props.dialog.$option.showMask" @click="props.dialog.$option.maskClosable && props.dialog.close()" 
+        <div v-if="props.dialog.$option.showMask" @click="props.dialog.$option.maskClosable && props.dialog.close()"
             class="my-dialog-mask"></div>
 
         <!-- 对户框的动画 -->
@@ -34,7 +34,7 @@
         props: {
             // 打开的对话框数量
             dialog: {
-                type: Object,    
+                type: Object,
                 required: true,
             },
             // vue的对象
@@ -99,6 +99,7 @@
         }
     }
     .my-dialog-header {
+        box-sizing: border-box;
         border-bottom: 1px solid #e8e8e8;
         height: 44px;
         padding: 12px 16px;
